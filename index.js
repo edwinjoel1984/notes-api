@@ -35,17 +35,17 @@ app.use(Sentry.Handlers.requestHandler());
 app.use(Sentry.Handlers.tracingHandler());
 
 
-app.get("/api/notes", (request,response)=>{
-    Note.find({})
-        .then(result=>{
-            console.log(result);
-            // mongoose.connection.close();
-            response.json(result);
-        })
-        .catch(err=>{
-            console.error(err);
-            response.status(400).send({error: "Algo anda mal"});
-        });
+app.get("/api/notes", async (request,response)=>{
+    const notes = await Note.find({});
+    response.json(notes);
+    // .then(result=>{
+    //     console.log(result);
+    //     // mongoose.connection.close();
+    // })
+    // .catch(err=>{
+    //     console.error(err);
+    //     response.status(400).send({error: "Algo anda mal"});
+    // });
 
 });
 app.get("/api/notes/:id", (request,response, next)=>{
@@ -60,20 +60,12 @@ app.get("/api/notes/:id", (request,response, next)=>{
             next(err);
         });
 });
-app.delete("/api/notes/:id", (request,response, next)=>{
-    Note.findByIdAndDelete(request.params.id)
-        .then(result=>{
-            if(result)
-                response.status(204).json(result);
-            else	
-                response.status(404).send({error: "Not Found"});
-        })
-        .catch(err=>{
-            console.log("errr");
-            next(err);
-        });
+app.delete("/api/notes/:id", async (request,response, next)=>{
+    await Note.findByIdAndDelete(request.params.id);
+    response.status(204).end();
+        
 });
-app.post("/api/notes/", (request,response)=>{
+app.post("/api/notes/", async (request,response, next)=>{
     const note = request.body;
     if(!note.content){
         return response.status(400).json({error: "content field is missing"});
@@ -83,14 +75,12 @@ app.post("/api/notes/", (request,response)=>{
         date: new Date(),
         important: note.important || false
     });
-    newNote.save()
-        .then(result=>{
-            response.json(result);
-        })
-        .catch(err=>{
-            console.error(err);
-            response.status(400).send({error: "Algo anda mal creando la Nota"});
-        });
+    try{
+        const result =await newNote.save();
+        response.json(result);
+    }catch(e){
+        next(e);
+    }
 });
 app.put("/api/notes/:id", (request,response)=>{
     const {content, important} = request.body;
@@ -112,6 +102,8 @@ app.use(notFound);
 app.use(Sentry.Handlers.errorHandler());
 app.use(handleErrors);
 
-app.listen(process.env.PORT,()=>{
+const server = app.listen(process.env.PORT,()=>{
     console.log("server started at PORT "+ process.env.PORT);
 });
+
+module.exports = {app, server};
