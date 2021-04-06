@@ -4,7 +4,8 @@ const notesSchema = new Schema(
     {
         content: String,
         date: Date,
-        important: Boolean
+        important: Boolean,
+        user: { type: Schema.Types.ObjectId, ref: "User"}
     });
 notesSchema.set("toJSON", {
     transform: (document, returnedObject)=>{

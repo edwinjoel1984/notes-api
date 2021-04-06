@@ -1,14 +1,20 @@
 require("dotenv").config();
 require ("./mongo");
-
 const express = require("express");
 const cors = require("cors");
 const app = express();
-const Note = require("./models/Note");
-const notFound = require("./middleware/notFound");
-const handleErrors = require("./middleware/handleErrors");
+
+//Sentry
 const Sentry = require("@sentry/node");
 const Tracing = require("@sentry/tracing");
+//Middlewares
+const notFound = require("./middleware/notFound");
+const handleErrors = require("./middleware/handleErrors");
+
+//Controllers
+const usersRouter = require("./controllers/users");
+const notesRouter = require("./controllers/notes");
+const loginRouter = require("./controllers/login");
 
 app.use(express.json());
 app.use(cors());
@@ -34,69 +40,9 @@ app.use(Sentry.Handlers.requestHandler());
 // TracingHandler creates a trace for every incoming request
 app.use(Sentry.Handlers.tracingHandler());
 
-
-app.get("/api/notes", async (request,response)=>{
-    const notes = await Note.find({});
-    response.json(notes);
-    // .then(result=>{
-    //     console.log(result);
-    //     // mongoose.connection.close();
-    // })
-    // .catch(err=>{
-    //     console.error(err);
-    //     response.status(400).send({error: "Algo anda mal"});
-    // });
-
-});
-app.get("/api/notes/:id", (request,response, next)=>{
-    Note.findById(request.params.id)
-        .then(result=>{
-            if(result)
-                response.json(result);
-            else	
-                response.status(404).send({error: "Not Found"});
-        })
-        .catch(err=>{
-            next(err);
-        });
-});
-app.delete("/api/notes/:id", async (request,response, next)=>{
-    await Note.findByIdAndDelete(request.params.id);
-    response.status(204).end();
-        
-});
-app.post("/api/notes/", async (request,response, next)=>{
-    const note = request.body;
-    if(!note.content){
-        return response.status(400).json({error: "content field is missing"});
-    }
-    const newNote= new Note ({
-        content: note.content,
-        date: new Date(),
-        important: note.important || false
-    });
-    try{
-        const result =await newNote.save();
-        response.json(result);
-    }catch(e){
-        next(e);
-    }
-});
-app.put("/api/notes/:id", (request,response)=>{
-    const {content, important} = request.body;
-    const newNoteInfo= {
-        content,
-        important
-    };
-    Note.findByIdAndUpdate(request.params.id,newNoteInfo, {new: true} )
-        .then(result=>{
-            response.json(result);
-        })
-        .catch(err=>{
-            console.error(err);
-            response.status(400).send({error: "Algo anda mal creando la Nota"});
-        });
-});
+app.use("/api/users", usersRouter);
+app.use("/api/notes", notesRouter);
+app.use("/api/login", loginRouter);
 
 app.use(notFound);
 app.use(Sentry.Handlers.errorHandler());

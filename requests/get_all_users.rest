@@ -1,4 +1,4 @@
 # GET https://safe-wave-36858.herokuapp.com/api/notes HTTP/1.1
-GET http://localhost:3001/api/notes HTTP/1.1
+GET http://localhost:3001/api/users HTTP/1.1
 content-type: application/json
 

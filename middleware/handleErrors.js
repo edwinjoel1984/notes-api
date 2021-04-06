@@ -1,5 +1,5 @@
 module.exports = (error, req, resp, next)=>{
-    console.error(error.name, "----");
+    console.error(error.name, "----", req.body);
     if(error.name === "CastError") 
         resp.status(400).end();
     else
