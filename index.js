@@ -41,9 +41,6 @@ Sentry.init({
 app.use(Sentry.Handlers.requestHandler());
 // TracingHandler creates a trace for every incoming request
 app.use(Sentry.Handlers.tracingHandler());
-app.use("/", (req, res)=>{
-    res.sendFile(path.join(__dirname + "/pages/404.html"));
-});
 app.use("/api/users", usersRouter);
 app.use("/api/notes", notesRouter);
 app.use("/api/login", loginRouter);
@@ -51,6 +48,9 @@ if(process.env.NODE_ENV === "test"){
     const testingRouter = require("./controllers/testing");
     app.use("/api/testing", testingRouter);
 }
+app.use((req, res)=>{
+    res.status(404).sendFile(path.join(__dirname + "/pages/404.html"));
+});
 
 app.use(notFound);
 app.use(Sentry.Handlers.errorHandler());
