@@ -3,6 +3,7 @@ require ("./mongo");
 const express = require("express");
 const cors = require("cors");
 const app = express();
+var path = require("path");
 
 //Sentry
 const Sentry = require("@sentry/node");
@@ -40,7 +41,9 @@ Sentry.init({
 app.use(Sentry.Handlers.requestHandler());
 // TracingHandler creates a trace for every incoming request
 app.use(Sentry.Handlers.tracingHandler());
-
+app.use("/", (req, res)=>{
+    res.sendFile(path.join(__dirname + "/pages/404.html"));
+});
 app.use("/api/users", usersRouter);
 app.use("/api/notes", notesRouter);
 app.use("/api/login", loginRouter);
