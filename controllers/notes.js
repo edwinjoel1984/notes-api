@@ -1,3 +1,5 @@
+const jwt = require("jsonwebtoken");
+const useExtractor = require("../middleware/useExtractor");
 const notesRouter = require("express").Router();
 const Note = require("../models/Note");
 const User = require("../models/User");
@@ -7,7 +9,7 @@ notesRouter.get("", async (request,response)=>{
     const notes = await Note.find({}).populate("user", { name:1, _id: 0});
     response.json(notes);
 });
-notesRouter.get("/:id", (request,response, next)=>{
+notesRouter.get("/:id", useExtractor, (request,response, next)=>{
     Note.findById(request.params.id)
         .then(result=>{
             if(result)
@@ -19,15 +21,15 @@ notesRouter.get("/:id", (request,response, next)=>{
             next(err);
         });
 });
-notesRouter.delete("/:id", async (request,response, next)=>{
+notesRouter.delete("/:id", useExtractor, async (request,response, next)=>{
     await Note.findByIdAndDelete(request.params.id);
     response.status(204).end();
         
 });
-notesRouter.post("/", async (request,response, next)=>{
-    const {content, important =  false, userId} = request.body;
-
-    const user = await User.findById(userId);
+notesRouter.post("/", useExtractor, async (request,response, next)=>{
+    const {content, important =  false} = request.body;
+ 
+    const user = await User.findById(request.userId);
     if(!content){
         return response.status(400).json({error: "content field is missing"});
     }
@@ -35,7 +37,7 @@ notesRouter.post("/", async (request,response, next)=>{
         content,
         date: new Date(),
         important,
-        user: user._id
+        user: request.userId
     });
     
     try{

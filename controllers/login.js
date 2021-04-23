@@ -1,3 +1,4 @@
+const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const loginRouter = require("express").Router();
 const User = require("../models/User");
@@ -17,7 +18,15 @@ loginRouter.post("/", async(request, response, next)=>{
             error: "invalid user or password"
         });
     }
-    response.send({name: user.name, username: user.username});
+    const userForToken = {
+        id: user._id,
+        username: user.username,
+        
+    };
+    const token = jwt.sign(userForToken, process.env.AUTH_TOKEN,  {
+        expiresIn: 60 * 60 * 24 * 7
+    } );
+    response.send({name: user.name, username: user.username, token});
    
 });
 

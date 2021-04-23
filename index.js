@@ -16,6 +16,7 @@ const usersRouter = require("./controllers/users");
 const notesRouter = require("./controllers/notes");
 const loginRouter = require("./controllers/login");
 
+
 app.use(express.json());
 app.use(cors());
 
@@ -43,6 +44,10 @@ app.use(Sentry.Handlers.tracingHandler());
 app.use("/api/users", usersRouter);
 app.use("/api/notes", notesRouter);
 app.use("/api/login", loginRouter);
+if(process.env.NODE_ENV === "test"){
+    const testingRouter = require("./controllers/testing");
+    app.use("/api/testing", testingRouter);
+}
 
 app.use(notFound);
 app.use(Sentry.Handlers.errorHandler());

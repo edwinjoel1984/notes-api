@@ -1,8 +1,8 @@
 POST  http://localhost:3001/api/notes HTTP/1.1
 content-type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYwNmJlOTU5OTBiMzcwNGEwNGM3MTRmNyIsInVzZXJuYW1lIjoiZXNtaXRoIiwiaWF0IjoxNjE3NzE5MDMzfQ.8DlLD3RJ_CnZqVLHcsjJPW80XiYHxHJEUNlKEXxUJqU
 
 {
-  "content": "MongoDB is amazing with User",
-  "important": true,
-  "userId": "606bde45135a0120d8a7927b"
+  "content": "Utilizando el Middleware del userExtractor",
+  "important": true
 }
