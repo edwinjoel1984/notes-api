@@ -4,10 +4,12 @@ const express = require("express");
 const cors = require("cors");
 const app = express();
 var path = require("path");
-
+const compression = require("compression");
+// Compress all HTTP responses
+app.use(compression());
 //Sentry
 const Sentry = require("@sentry/node");
-const Tracing = require("@sentry/tracing");
+// const Tracing = require("@sentry/tracing");
 //Middlewares
 const notFound = require("./middleware/notFound");
 const handleErrors = require("./middleware/handleErrors");
@@ -21,20 +23,20 @@ const loginRouter = require("./controllers/login");
 app.use(express.json());
 app.use(cors());
 
-Sentry.init({
-    dsn: "https://1df88d3f622b4453899b67d0ab168b71@o140451.ingest.sentry.io/5704977",
-    integrations: [
-        // enable HTTP calls tracing
-        new Sentry.Integrations.Http({ tracing: true }),
-        // enable Express.js middleware tracing
-        new Tracing.Integrations.Express({ app }),
-    ],
+// Sentry.init({
+//     dsn: "https://1df88d3f622b4453899b67d0ab168b71@o140451.ingest.sentry.io/5704977",
+//     integrations: [
+//         // enable HTTP calls tracing
+//         new Sentry.Integrations.Http({ tracing: true }),
+//         // enable Express.js middleware tracing
+//         new Tracing.Integrations.Express({ app }),
+//     ],
   
-    // Set tracesSampleRate to 1.0 to capture 100%
-    // of transactions for performance monitoring.
-    // We recommend adjusting this value in production
-    tracesSampleRate: 1.0,
-});
+//     // Set tracesSampleRate to 1.0 to capture 100%
+//     // of transactions for performance monitoring.
+//     // We recommend adjusting this value in production
+//     tracesSampleRate: 1.0,
+// });
 
 // RequestHandler creates a separate execution context using domains, so that every
 // transaction/span/breadcrumb is attached to its own Hub instance
